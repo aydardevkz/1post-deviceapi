@@ -1,0 +1,31 @@
+version: "3.8"
+
+volumes:
+  static_vol:
+
+networks:
+  nginx_network:
+    driver: bridge
+
+services:
+  web:
+    build: onepost
+    platform: linux/amd64
+    command: /bin/bash -c "./start.sh"
+    container_name: onepost-source-web
+    expose:
+      - "7777"
+    volumes:
+      - ./onepost/:/var/www/html/onepost/
+      - static_vol:/var/www/html/onepost/static
+    networks:
+      - nginx_network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - DATABASE_HOST=10.0.4.1
+    restart: always
+    tty: true
+    stdin_open: true
+    sysctls:
+      - net.core.somaxconn=65535

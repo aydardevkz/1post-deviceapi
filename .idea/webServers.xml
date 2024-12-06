@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="5906c1be-4eab-4a1f-8810-8903418cb6cc" name="addev.uda.kz">
+        <fileTransfer rootFolder="/root" accessType="SFTP" host="45.76.90.98" port="22" sshConfigId="b8e574ac-b57a-4917-92f2-327b707b6f5d" sshConfig="root@45.76.90.98:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

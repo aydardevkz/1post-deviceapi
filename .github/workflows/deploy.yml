@@ -1,0 +1,58 @@
+name: CI/CD for DockerHub
+
+on:
+  workflow_dispatch:  # 手动触发事件
+    inputs:
+      branch:  # 选择目标分支
+        description: "选择要部署的分支 (main 或 dev)"
+        required: true
+        default: "dev"  # 默认分支
+        type: choice
+        options:  # 限制可选分支
+          - main
+          - dev
+      version:  # 手动输入的版本号
+        description: "Docker 镜像版本号"
+        required: true
+        default: "0.0.1"  # 默认版本号
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    env:
+      DOCKER_IMAGE_NAME: aydarcs/onepost-deviceapi-${{ github.event.inputs.branch }}
+
+    steps:
+      # 检出代码仓库
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}  # 根据用户选择的分支检出代码
+
+      # 登录到 Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 安装 Docker 和 Docker Compose
+      - name: Install docker-compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
+
+      # 构建 Docker 镜像（使用 docker-compose）
+      - name: Build Docker image without cache
+        run: |
+          docker-compose build --no-cache
+
+      # 打标签并推送镜像到 Docker Hub
+      - name: Push Docker image to Docker Hub
+        run: |
+          IMAGE_TAG=${{ github.event.inputs.version }}-${{ github.event.inputs.branch }}
+          docker tag 1post-deviceapi-web:latest $DOCKER_IMAGE_NAME:$IMAGE_TAG
+          docker push $DOCKER_IMAGE_NAME:$IMAGE_TAG
+
